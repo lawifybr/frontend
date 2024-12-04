@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Navigation() {
-    const pathName = usePathname();
     return (
         <header className="sticky top-0 z-50 bg-yellow-100 shadow-md">
         <div className="container mx-auto flex justify-between items-center p-4">

@@ -6,16 +6,13 @@ import {
   ChevronRight, 
   Shield, 
   FileText, 
-  Zap,
-  Clock,
-  CheckCircle,
-  Workflow
+  Zap
 } from 'lucide-react';
 import Link from "next/link";
 
 
 export default function Home() {
-  const {isLoaded, userId, sessionId, getToken} = useAuth()
+  const {isLoaded, userId} = useAuth()
   const router = useRouter()
   if (isLoaded && userId) {
     // Use router.push() instead of revalidatePath()

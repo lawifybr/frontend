@@ -12,6 +12,7 @@ import {
 const PricingPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState('professional');
 
+  console.log(selectedPlan);
   const plans = [
     {
       name: 'Starter',

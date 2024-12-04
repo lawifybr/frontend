@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Upload, File, Check } from 'lucide-react';
 import { useUser } from "@clerk/nextjs";
 
