@@ -1,6 +1,5 @@
 "use client"
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Navigation() {
