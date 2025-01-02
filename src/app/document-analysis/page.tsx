@@ -1,8 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { remark } from 'remark';
+import html from 'remark-html';
+import { useEffect, useState } from 'react';
 import { Upload, File, Check } from 'lucide-react';
 import { useUser } from "@clerk/nextjs";
+
+export async function markdownToHtml(markdown: string): Promise<string> {
+  const result = await remark().use(html).process(markdown);
+  return result.toString();
+}
+
 
 export default function DocumentAnalysis() {
   const { user } = useUser();
@@ -10,52 +18,73 @@ export default function DocumentAnalysis() {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [htmlResult, setHtmlResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (result) {
+      markdownToHtml(result).then((html) => setHtmlResult(html));
+    }
+  }, [result]);
+
+  useEffect(() => {
+    if (user) {
+      console.log('Conectando ao WebSocket...');
+      const socket = new WebSocket(`ws://localhost:8000/ws/${user.id}`);
+      if (!socket) {
+        console.error('Erro ao conectar ao WebSocket');
+        return;
+      }
+      socket.onmessage = (event) => {
+        setAnalyzing(false);
+        setResult(event.data);
+      };
+      socket.onclose = () => console.log("WebSocket desconectado");
+      return () => socket.close();
+    }
+  }, [user]);
 
   const handleFile = async (newFile: File) => {
     setFile(newFile);
     setAnalyzing(true);
     setResult(null);
 
+    console.log("Analisando documento...");
+  
+    if (!user) {
+      throw new Error("Usuário não autenticado");
+    }
+  
     const formData = new FormData();
-    formData.append('file', newFile);
-
+    formData.append("file", newFile); // Adiciona o arquivo
+    formData.append("user_id", user.id); // Adiciona o user_id como campo do formulário
+  
     try {
-      const response = await fetch('https://fbae-2804-60-106-7b00-1b6-847-2ea7-cae6.ngrok-free.app/documents/analysis', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/documents/analysis", {
+        method: "POST",
         body: formData,
+        headers: {
+          ngrok: "ngrok-skip-browser-warning",
+        }
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const contentType = response.headers.get('content-type');
-      let data;
-      
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-        setResult(data.result || 'Análise concluída com sucesso');
-      } else {
-        // Se a resposta não for JSON, lê como texto
-        const text = await response.text();
-        setResult(text);
-      }
+  
+      const data = await response.json();
+      setResult(data.status || "Análise em andamento");
     } catch (error) {
-      console.error('Erro ao analisar documento:', error);
-      if (error instanceof Error) {
-        setResult(`Erro ao analisar documento: ${error.message}`);
-      } else {
-        setResult('Erro ao analisar documento');
-      }
+      console.error("Erro ao analisar documento:", error);
+      setResult("Erro ao analisar documento");
     } finally {
       setAnalyzing(false);
     }
-  };
+  };  
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
     } else if (e.type === "dragleave") {
@@ -81,7 +110,7 @@ export default function DocumentAnalysis() {
           Bem-vindo, {user.fullName || user.username || 'Usuário'}
         </div>
       )}
-      
+
       <div
         className={`border-2 border-dashed rounded-lg p-8 transition-colors ${
           dragActive 
@@ -93,7 +122,6 @@ export default function DocumentAnalysis() {
         onDragOver={handleDrag}
         onDrop={handleDrop}
       >
-        {/* Input de arquivo */}
         <input
           type="file"
           className="hidden"
@@ -101,19 +129,12 @@ export default function DocumentAnalysis() {
           accept=".pdf,.doc,.docx"
           id="file-upload"
         />
-        
-        {/* Área de upload */}
         <label htmlFor="file-upload" className="cursor-pointer block text-center">
           <Upload className="w-12 h-12 mx-auto mb-4 text-blue-800" />
-          <div className="text-lg mb-2">
-            Arraste seu documento ou clique para selecionar
-          </div>
-          <p className="text-sm text-gray-500">
-            Suporta PDF, DOC, DOCX
-          </p>
+          <div className="text-lg mb-2">Arraste seu documento ou clique para selecionar</div>
+          <p className="text-sm text-gray-500">Suporta PDF, DOC, DOCX</p>
         </label>
 
-        {/* Arquivo selecionado */}
         {file && (
           <div className="mt-6">
             <h3 className="font-medium mb-3">Documento selecionado</h3>
@@ -125,7 +146,6 @@ export default function DocumentAnalysis() {
           </div>
         )}
 
-        {/* Estado de carregamento */}
         {analyzing && (
           <div className="text-center py-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-800 mx-auto"></div>
@@ -133,12 +153,11 @@ export default function DocumentAnalysis() {
           </div>
         )}
 
-        {/* Resultado */}
-        {result && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium mb-2">Resultado:</h3>
-            <p>{result}</p>
-          </div>
+        {htmlResult && (
+          <div
+            className="mt-6 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-lg shadow-md"
+            dangerouslySetInnerHTML={{ __html: htmlResult }}
+          />
         )}
       </div>
     </div>

@@ -31,21 +31,21 @@ export default function Home() {
             completo de contratos, desenvolvido especialmente para pequenas e médias empresas.
           </p>
           <div className="flex justify-center space-x-4">
-           <Link href="/pricing-plans" className="text-yellow-700 hover:text-yellow-900">
             <Button 
                 size="lg" 
                 className="bg-yellow-600 text-white hover:bg-yellow-700 flex items-center"
               >
                 Começar Agora <ChevronRight className="ml-2" />
             </Button>
+            <Link href="/pricing-plans" className="text-yellow-700 hover:text-yellow-900">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="border-yellow-600 text-yellow-800 hover:bg-yellow-100"
+              >
+                Saiba Mais
+              </Button>
             </Link>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="border-yellow-600 text-yellow-800 hover:bg-yellow-100"
-            >
-              Saiba Mais
-            </Button>
           </div>
         </section>
 
