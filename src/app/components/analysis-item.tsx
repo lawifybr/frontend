@@ -32,6 +32,8 @@ export function AnalysisItem({ analysis, onView, onDelete }: AnalysisItemProps) 
                 <span className="text-sm text-gray-500">{analysis.createdAt}</span>
                 <span className="text-gray-300">•</span>
                 <span className="text-sm text-gray-500">{analysis.fileSize} MB</span>
+                <span className="text-gray-300">•</span>
+                <span className="text-gray-300">{analysis.datetime}</span>
               </div>
             </div>
           </div>

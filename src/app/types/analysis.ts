@@ -4,5 +4,6 @@ export interface Analysis {
     createdAt: string
     fileSize: string
     status: 'completed' | 'processing' | 'error'
+    datetime: string
 }
   
