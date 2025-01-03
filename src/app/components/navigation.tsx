@@ -32,6 +32,9 @@ export default function Navigation() {
           </SignedOut>
           <SignedIn>
             <UserButton />
+            <Link href="/all-analysis" className="text-white hover:text-blue-100">
+                Ver Análises
+            </Link>
           </SignedIn>
         </div>
 
@@ -49,30 +52,6 @@ export default function Navigation() {
             <path d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
-      </div>
-
-      {/* Mobile Menu (hidden by default) */}
-      <div className="hidden md:hidden">
-        <div className="px-2 pt-2 pb-3 space-y-1 bg-blue-700">
-          <Link
-            href="/analise"
-            className="block px-3 py-2 text-white/90 hover:text-white hover:bg-blue-600"
-          >
-            Análise de Contratos
-          </Link>
-          <Link
-            href="/sobre"
-            className="block px-3 py-2 text-white/90 hover:text-white hover:bg-blue-600"
-          >
-            Sobre
-          </Link>
-          <Link
-            href="/contato"
-            className="block px-3 py-2 text-white/90 hover:text-white hover:bg-blue-600"
-          >
-            Contato
-          </Link>
-        </div>
       </div>
     </nav>
   )

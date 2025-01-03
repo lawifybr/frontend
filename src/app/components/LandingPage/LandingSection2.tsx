@@ -20,7 +20,7 @@ export default function LandingSection2() {
         <p className="text-lg text-gray-300 max-w-2xl mx-auto">
           Faça o upload do seu contrato e receba uma análise detalhada com insights importantes e pontos de atenção.
         </p>
-        <ContractUpload onAnalyze={analyzeContract} isDarkMode={true} />
+        <ContractUpload isDarkMode={true} />
 
         <div className="space-y-4 mt-12">
           <p className="text-sm text-gray-400">Utilizado por escritórios de advocacia em:</p>

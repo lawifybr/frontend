@@ -1,7 +1,6 @@
 import { FileText, ArrowRight, Trash2, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Analysis } from "../types/analysis"
-import { cn } from "@/lib/utils"
 
 interface AnalysisItemProps {
   analysis: Analysis
@@ -32,7 +31,7 @@ export function AnalysisItem({ analysis, onView, onDelete }: AnalysisItemProps) 
               <div className="flex items-center space-x-2 mt-1">
                 <span className="text-sm text-gray-500">{analysis.createdAt}</span>
                 <span className="text-gray-300">•</span>
-                <span className="text-sm text-gray-500">{analysis.fileSize}</span>
+                <span className="text-sm text-gray-500">{analysis.fileSize} MB</span>
               </div>
             </div>
           </div>

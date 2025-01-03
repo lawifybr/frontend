@@ -1,52 +1,82 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Upload, Sparkles } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Analysis } from "../types/analysis"
 import { AnalysisItem } from "../components/analysis-item"
-import Link from 'next/link';
-
-const mockAnalyses: Analysis[] = [
-  {
-    id: "1",
-    fileName: "Contrato_Prestacao_Servicos.pdf",
-    createdAt: "23 Jan, 2024 às 14:30",
-    fileSize: "2.4 MB",
-    status: 'completed'
-  },
-  {
-    id: "2",
-    fileName: "Acordo_Confidencialidade.pdf",
-    createdAt: "23 Jan, 2024 às 12:15",
-    fileSize: "1.8 MB",
-    status: 'processing'
-  },
-  {
-    id: "3",
-    fileName: "Contrato_Aluguel_Comercial.pdf",
-    createdAt: "22 Jan, 2024 às 16:45",
-    fileSize: "3.1 MB",
-    status: 'completed'
-  },
-  {
-    id: "4",
-    fileName: "Termo_Compromisso.pdf",
-    createdAt: "22 Jan, 2024 às 09:20",
-    fileSize: "1.5 MB",
-    status: 'error'
-  }
-]
+import Link from 'next/link'
+import { useUser } from "@clerk/nextjs"
 
 export default function AnalysisList() {
-  const [analyses, setAnalyses] = useState<Analysis[]>(mockAnalyses)
+  const [analyses, setAnalyses] = useState<Analysis[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { user } = useUser()
+
+  useEffect(() => {
+    const fetchAnalyses = async () => {
+      if (!user) return
+
+      try {
+        const response = await fetch(`http://localhost:8000/documents/user/${user.id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch analyses')
+        }
+        const data = await response.json()
+        setAnalyses(data)
+      } catch (error) {
+        console.error('Error fetching analyses:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAnalyses()
+  }, [user])
 
   const handleView = (id: string) => {
     console.log("Viewing analysis:", id)
   }
 
-  const handleDelete = (id: string) => {
-    setAnalyses(analyses.filter(analysis => analysis.id !== id))
+  const handleDelete = async (id: string) => {
+    try {
+      setAnalyses(analyses.filter((analysis) => analysis.id !== id));
+  
+      const response = await fetch(`http://localhost:8000/documents/analysis/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao deletar a análise');
+      }
+  
+      console.log(`Análise ${id} deletada com sucesso`);
+    } catch (error) {
+      console.error('Erro ao deletar análise:', error);
+  
+      const userId = user?.id;
+      if (userId) {
+        try {
+          const response = await fetch(`http://localhost:8000/documents/user/${userId}`);
+          const data = await response.json();
+          setAnalyses(data); // Atualizar com os dados mais recentes
+        } catch (error) {
+          console.error('Erro ao recuperar análises após falha na exclusão:', error);
+        }
+      }
+    }
+  };
+  
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-500">Carregando análises...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -62,13 +92,12 @@ export default function AnalysisList() {
             </p>
           </div>
           
+        <Link href="/">
           <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-300 group">
             <Upload className="w-4 h-4 mr-2 group-hover:-translate-y-1 transition-transform" />
-            {/* go to /  */}
-            <Link href="/">
-                Nova Análise
-            </Link>
+              Nova Análise
           </Button>
+        </Link>
         </div>
 
         <div className="space-y-6">
@@ -97,4 +126,3 @@ export default function AnalysisList() {
     </div>
   )
 }
-

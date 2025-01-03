@@ -73,7 +73,7 @@ export default function LandingSection1() {
               </div>
             </div>
             <div className="relative">
-              <ContractUpload onAnalyze={analyzeContract} />
+              <ContractUpload />
             </div>
           </div>
         </div>
